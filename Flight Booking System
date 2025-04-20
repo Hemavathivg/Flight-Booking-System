@@ -1,0 +1,110 @@
+public class User {
+    String username;
+    String password;
+    public User(String username, String password) {
+        this.username = username;
+        this.password = password;
+    }
+    public boolean authenticate(String user, String pass) {
+        return this.username.equals(user) && this.password.equals(pass);
+    }
+}
+public class Flight {
+    int flightId;
+    String source;
+    String destination;
+    int seatsAvailable;
+    public Flight(int flightId, String source, String destination, int seatsAvailable) {
+        this.flightId = flightId;
+        this.source = source;
+        this.destination = destination;
+        this.seatsAvailable = seatsAvailable;
+    }
+    public void displayFlight() {
+        System.out.println("Flight ID: " + flightId + " | From: " + source + " | To: " + destination + " | Seats: " + seatsAvailable);
+    }
+}
+public class Booking {
+    User user;
+    Flight flight;
+    public Booking(User user, Flight flight) {
+        this.user = user;
+        this.flight = flight;
+    }
+    public void displayBooking() {
+        System.out.println("Booking Confirmed for " + user.username + " on Flight ID: " + flight.flightId);
+    }
+}
+import java.util.*;
+public class FlightBookingSystem {
+    List<Flight> flights = new ArrayList<>();
+    List<User> users = new ArrayList<>();
+    List<Booking> bookings = new ArrayList<>();
+    public void loadFlights() {
+        flights.add(new Flight(1, "Chennai", "Delhi", 5));
+        flights.add(new Flight(2, "Mumbai", "Bangalore", 3));
+        flights.add(new Flight(3, "Hyderabad", "Kolkata", 2));
+    }
+    public User register(String username, String password) {
+        User user = new User(username, password);
+        users.add(user);
+        return user;
+    }
+    public User login(String username, String password) {
+        for (User u : users) {
+            if (u.authenticate(username, password)) return u;
+        }
+        return null;
+    }
+    public void showFlights() {
+        for (Flight f : flights) f.displayFlight();
+    }
+    public Flight selectFlight(int id) {
+        for (Flight f : flights) {
+            if (f.flightId == id && f.seatsAvailable > 0) {
+                f.seatsAvailable--;
+                return f;
+            }
+        }
+        return null;
+    }
+    public void bookFlight(User user, int flightId) {
+        Flight flight = selectFlight(flightId);
+        if (flight != null) {
+            Booking booking = new Booking(user, flight);
+            bookings.add(booking);
+            booking.displayBooking();
+        } else {
+            System.out.println("Flight not available!");
+        }
+    }
+}
+import java.util.*;
+public class Main {
+    public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        FlightBookingSystem system = new FlightBookingSystem();
+        system.loadFlights();
+        System.out.println("Register:");
+        System.out.print("Username: ");
+        String user = sc.nextLine();
+        System.out.print("Password: ");
+        String pass = sc.nextLine();
+        User newUser = system.register(user, pass);
+        System.out.println("\nLogin:");
+        System.out.print("Username: ");
+        String loginUser = sc.nextLine();
+        System.out.print("Password: ");
+        String loginPass = sc.nextLine();
+        User loggedIn = system.login(loginUser, loginPass);
+        if (loggedIn != null) {
+            System.out.println("\nLogin Successful!");
+            system.showFlights();
+            System.out.print("Enter Flight ID to book: ");
+            int id = sc.nextInt();
+            system.bookFlight(loggedIn, id);
+        } else {
+            System.out.println("Invalid Login!");
+        }
+    }
+}
